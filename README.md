@@ -10,7 +10,7 @@ Feito com Next.js 16 e shadcn/ui (Base UI).
 
 ## Como rodar
 
-Pré-requisitos: **Node 22+**, **pnpm 10+** e a API rodando em `http://localhost:3000`. No repositório da API, rode `pnpm install && pnpm dev`.
+Pré-requisitos: **Node 22+**, **pnpm 10+** e a API rodando em `http://localhost:3000`. No repositório da API, rode `pnpm install && pnpm start:dev`.
 
 ```bash
 pnpm install
