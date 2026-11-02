@@ -1,11 +1,11 @@
 ---
 version: 1
 slug: "apps-web-app-page-tsx"
-primary_target: "apps/web/app/(panel)/page.tsx"
-related_targets: ["apps/web/app/login/page.tsx","apps/web/app/(panel)/bookings/page.tsx"]
+primary_target: "app/(panel)/page.tsx"
+related_targets: ["app/login/page.tsx","app/(panel)/bookings/page.tsx"]
 ---
 
-# Painel de reservas (apps/web)
+# Painel de reservas
 
 Scope: the authenticated panel (Agenda, Reservas) and its login. Mode: Operate.
 

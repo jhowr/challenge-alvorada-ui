@@ -38,3 +38,7 @@ pnpm-debug.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# impeccable scratch (decision sketches, question state)
+/.impeccable/mocks/
+/.impeccable/questions/
