@@ -1,24 +1,26 @@
-import { dragSpan, hourAt, overlaps, placeOnDay } from "./grid"
+import { dragSpan, overlaps, placeOnDay, slotAt } from "./grid"
 
-const day = { start: 100, end: 124 }
+// A day of 24 hours in minutes, starting at minute 6000.
+const day = { start: 6000, end: 6000 + 24 * 60 }
+const at = (hours: number) => day.start + hours * 60
 
 describe("placeOnDay", () => {
-  it("places a period inside the day by its hours", () => {
-    expect(placeOnDay({ start: 109, end: 111 }, day)).toEqual({
+  it("places a period inside the day by its minutes", () => {
+    expect(placeOnDay({ start: at(9), end: at(10.5) }, day)).toEqual({
       left: (9 / 24) * 100,
-      width: (2 / 24) * 100,
+      width: (1.5 / 24) * 100,
       continuesBefore: false,
       continuesAfter: false,
     })
   })
 
   it("clips a period that crosses midnight and says it continues", () => {
-    expect(placeOnDay({ start: 122, end: 126 }, day)).toMatchObject({
+    expect(placeOnDay({ start: at(22), end: at(26) }, day)).toMatchObject({
       left: (22 / 24) * 100,
       width: (2 / 24) * 100,
       continuesAfter: true,
     })
-    expect(placeOnDay({ start: 98, end: 102 }, day)).toMatchObject({
+    expect(placeOnDay({ start: at(-2), end: at(2) }, day)).toMatchObject({
       left: 0,
       width: (2 / 24) * 100,
       continuesBefore: true,
@@ -26,29 +28,38 @@ describe("placeOnDay", () => {
   })
 
   it.each([
-    ["ends exactly when the day starts", { start: 90, end: 100 }],
-    ["starts exactly when the day ends", { start: 124, end: 130 }],
+    ["ends exactly when the day starts", { start: at(-1), end: at(0) }],
+    ["starts exactly when the day ends", { start: at(24), end: at(25) }],
   ])("leaves out a period that %s", (_label, period) => {
     expect(placeOnDay(period, day)).toBeNull()
   })
 })
 
-describe("pointer to hour", () => {
-  it("maps a pointer to the hour column under it", () => {
-    expect(hourAt(0, 960, day)).toBe(100)
-    expect(hourAt(41, 960, day)).toBe(101)
-    expect(hourAt(959, 960, day)).toBe(123)
+describe("pointer to slot", () => {
+  // 960 px for 96 quarter hours: 10 px per slot, 40 px per hour.
+  it("maps a pointer to the start of the quarter hour under it", () => {
+    expect(slotAt(0, 960, day, 15)).toBe(at(0))
+    expect(slotAt(9, 960, day, 15)).toBe(at(0))
+    expect(slotAt(10, 960, day, 15)).toBe(at(0.25))
+    expect(slotAt(375, 960, day, 15)).toBe(at(9.25))
+    expect(slotAt(959, 960, day, 15)).toBe(at(23.75))
   })
 
   it("clamps a pointer dragged past either edge", () => {
-    expect(hourAt(-30, 960, day)).toBe(100)
-    expect(hourAt(2000, 960, day)).toBe(123)
+    expect(slotAt(-30, 960, day, 15)).toBe(at(0))
+    expect(slotAt(2000, 960, day, 15)).toBe(at(23.75))
   })
 
-  it("selects whole hours whichever way the drag goes", () => {
-    expect(dragSpan(109, 111)).toEqual({ start: 109, end: 112 })
-    expect(dragSpan(111, 109)).toEqual({ start: 109, end: 112 })
-    expect(dragSpan(109, 109)).toEqual({ start: 109, end: 110 })
+  it("selects whole slots whichever way the drag goes", () => {
+    expect(dragSpan(at(9), at(10.5), 15)).toEqual({
+      start: at(9),
+      end: at(10.75),
+    })
+    expect(dragSpan(at(10.5), at(9), 15)).toEqual({
+      start: at(9),
+      end: at(10.75),
+    })
+    expect(dragSpan(at(9), at(9), 15)).toEqual({ start: at(9), end: at(9.25) })
   })
 })
 

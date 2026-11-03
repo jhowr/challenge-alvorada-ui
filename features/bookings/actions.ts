@@ -35,13 +35,15 @@ export interface ScenarioResult {
 
 /**
  * Books a small scenario on the given day so every rule has something to
- * show: adjacent periods, the same hours on another resource, a booking that
- * crosses midnight, and a cancelled one whose id stays taken. Ids carry the
- * day, so loading it twice reports `id_already_used` instead of duplicating.
+ * show: adjacent periods (on the hour and on quarter hours), the same time on
+ * another resource, a booking that crosses midnight, and a cancelled one whose
+ * id stays taken. Ids carry the day, so loading it twice reports
+ * `id_already_used` instead of duplicating.
  */
 export async function loadScenarioAction(dayStart: number, suffix: string) {
   await requireSession()
-  const at = (hour: number) => dayStart + hour
+  // Hours of the day, as minutes since the epoch: at(9.5) is 09:30.
+  const at = (hours: number) => dayStart + hours * 60
   const plan: Omit<Booking, "status">[] = [
     {
       id: `standup-${suffix}`,
@@ -53,7 +55,13 @@ export async function loadScenarioAction(dayStart: number, suffix: string) {
       id: `review-${suffix}`,
       resourceId: "ROOM-A",
       start: at(11),
-      end: at(12),
+      end: at(11.5),
+    },
+    {
+      id: `cafe-${suffix}`,
+      resourceId: "ROOM-A",
+      start: at(11.5),
+      end: at(12.25),
     },
     { id: `retro-${suffix}`, resourceId: "ROOM-A", start: at(14), end: at(16) },
     {
@@ -62,7 +70,12 @@ export async function loadScenarioAction(dayStart: number, suffix: string) {
       start: at(9),
       end: at(11),
     },
-    { id: `sync-${suffix}`, resourceId: "R1", start: at(13), end: at(14) },
+    {
+      id: `sync-${suffix}`,
+      resourceId: "R1",
+      start: at(13.25),
+      end: at(14),
+    },
     {
       id: `plantao-${suffix}`,
       resourceId: "ROOM-B",

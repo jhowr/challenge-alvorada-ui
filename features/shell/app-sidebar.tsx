@@ -166,14 +166,7 @@ function ApiStatus({ health }: { health: Health | null }) {
         aria-hidden
       />
       <span className="truncate group-data-[collapsible=icon]:hidden">
-        {health ? (
-          <>
-            API no ar · driver{" "}
-            <span className="font-mono">{health.driver}</span>
-          </>
-        ) : (
-          "API fora do ar"
-        )}
+        {health ? "API no ar" : "API fora do ar"}
       </span>
     </div>
   )

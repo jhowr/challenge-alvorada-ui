@@ -4,7 +4,7 @@ import * as api from "@/features/bookings/api"
 import { Agenda } from "@/features/agenda/agenda"
 import { overlaps } from "@/features/agenda/grid"
 import { ApiDown } from "@/features/shell/api-down"
-import { dayRange, hourOf, parseDayParam, toDayParam } from "@/lib/hours"
+import { dayRange, minuteOf, parseDayParam, toDayParam } from "@/lib/minutes"
 
 export const metadata: Metadata = { title: "Agenda" }
 
@@ -40,7 +40,7 @@ export default async function AgendaPage({
       resources={resources.data}
       bookings={bookings.data.filter((booking) => overlaps(booking, day))}
       focusedResource={focusedResource}
-      now={hourOf(today)}
+      now={minuteOf(today)}
     />
   )
 }

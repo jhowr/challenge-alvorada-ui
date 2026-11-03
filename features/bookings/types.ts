@@ -22,7 +22,6 @@ export type CancelOutcome = "cancelled" | "already_cancelled"
 
 export interface Health {
   status: "ok"
-  driver: "memory" | "postgres"
 }
 
 /**

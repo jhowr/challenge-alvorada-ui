@@ -13,12 +13,12 @@ import {
 } from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
 import { Spinner } from "@/components/ui/spinner"
-import { formatPeriod } from "@/lib/hours"
+import { formatPeriod } from "@/lib/minutes"
 import { cancelBookingAction } from "./actions"
 import { describeError } from "./errors"
 import type { Booking } from "./types"
 
-/** Cancelling frees the hours but never the id, and the dialog says so. */
+/** Cancelling frees the period but never the id, and the dialog says so. */
 export function CancelBookingDialog({
   booking,
   onOpenChange,

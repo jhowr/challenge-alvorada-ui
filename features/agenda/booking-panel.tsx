@@ -33,17 +33,16 @@ import type {
   ApiResult,
   Availability,
 } from "@/features/bookings/types"
-import { formatPeriod, formatRaw, hourToDate } from "@/lib/hours"
+import { formatPeriod, formatRaw, minuteToDate } from "@/lib/minutes"
 import { cn } from "@/lib/utils"
 import type { Selection } from "./day-grid"
-import { HourPicker } from "./hour-picker"
+import { TimePicker } from "./time-picker"
 
 export function suggestId(selection: Selection): string {
-  const date = hourToDate(selection.start)
-  const mm = String(date.getMonth() + 1).padStart(2, "0")
-  const dd = String(date.getDate()).padStart(2, "0")
-  const hh = String(date.getHours()).padStart(2, "0")
-  return `${selection.resourceId.toLowerCase()}-${mm}${dd}-${hh}h`
+  const date = minuteToDate(selection.start)
+  const pad = (n: number) => String(n).padStart(2, "0")
+  const time = `${pad(date.getHours())}h${date.getMinutes() ? pad(date.getMinutes()) : ""}`
+  return `${selection.resourceId.toLowerCase()}-${pad(date.getMonth() + 1)}${pad(date.getDate())}-${time}`
 }
 
 export function BookingPanel({
@@ -100,8 +99,8 @@ export function BookingPanel({
           Verificar e reservar
         </h2>
         <p className="text-sm text-muted-foreground">
-          Arraste sobre as horas na grade ou ajuste abaixo. A API responde a
-          cada mudança.
+          Arraste sobre a grade (de 15 em 15 minutos) ou ajuste abaixo. A API
+          responde a cada mudança.
         </p>
       </div>
 
@@ -143,7 +142,7 @@ export function BookingPanel({
           data-invalid={fields.start || queryFields.start ? true : undefined}
         >
           <FieldLabel htmlFor="start">Início</FieldLabel>
-          <HourPicker
+          <TimePicker
             id="start"
             value={selection.start}
             onChange={(start) => onChange({ ...selection, start })}
@@ -156,14 +155,14 @@ export function BookingPanel({
         </Field>
         <Field data-invalid={fields.end || queryFields.end ? true : undefined}>
           <FieldLabel htmlFor="end">Fim</FieldLabel>
-          <HourPicker
+          <TimePicker
             id="end"
             value={selection.end}
             onChange={(end) => onChange({ ...selection, end })}
             invalid={Boolean(fields.end || queryFields.end)}
           />
           <FieldDescription className="font-mono text-xs">
-            end = {selection.end} · a hora do fim fica livre
+            end = {selection.end} · o minuto do fim fica livre
           </FieldDescription>
           <FieldError>{fields.end ?? queryFields.end}</FieldError>
         </Field>
@@ -211,8 +210,8 @@ export function BookingPanel({
         {busy && (
           <p className="text-xs text-muted-foreground">
             O período está ocupado: a API deve recusar com{" "}
-            <code className="font-mono">409 conflict</code>. Tente para ver a
-            resposta.
+            <code className="font-mono">409 conflict</code>. Tente reservar para
+            ver a resposta.
           </p>
         )}
       </div>

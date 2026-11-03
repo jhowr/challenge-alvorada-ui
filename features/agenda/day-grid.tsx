@@ -15,9 +15,14 @@ import { Separator } from "@/components/ui/separator"
 import { StatusBadge } from "@/features/bookings/status-badge"
 import type { Booking } from "@/features/bookings/types"
 import { ResourceIcon } from "@/features/shell/resource-icon"
-import { formatPeriod, formatRaw, formatTime } from "@/lib/hours"
+import {
+  formatPeriod,
+  formatRaw,
+  formatTime,
+  STEP_MINUTES,
+} from "@/lib/minutes"
 import { cn } from "@/lib/utils"
-import { dragSpan, hourAt, placeOnDay, type Span } from "./grid"
+import { dragSpan, placeOnDay, slotAt, type Span } from "./grid"
 
 export interface Selection extends Span {
   resourceId: string
@@ -36,14 +41,16 @@ interface DayGridProps {
 }
 
 /**
- * The day as a resource × hour grid. Dragging across a row selects a period
- * (violet); bookings the API reports as conflicting with it turn amber.
+ * The day as a resource × hour grid. Dragging across a row selects a period in
+ * steps of `STEP_MINUTES` (violet); bookings the API reports as conflicting
+ * with it turn amber.
  */
 export function DayGrid(props: DayGridProps) {
   const { day, resources, bookings, now } = props
+  // One column per hour; a daylight-saving day has 23 or 25.
   const hours = Array.from(
-    { length: day.end - day.start },
-    (_, i) => day.start + i
+    { length: Math.round((day.end - day.start) / 60) },
+    (_, i) => day.start + i * 60
   )
   const nowPlacement =
     now >= day.start && now < day.end
@@ -103,9 +110,9 @@ function ResourceRow({
     onBooking: boolean
   } | null>(null)
 
-  const hourFromEvent = (event: PointerEvent) => {
+  const slotFromEvent = (event: PointerEvent) => {
     const rect = track.current!.getBoundingClientRect()
-    return hourAt(event.clientX - rect.left, rect.width, day)
+    return slotAt(event.clientX - rect.left, rect.width, day, STEP_MINUTES)
   }
 
   function onPointerDown(event: PointerEvent<HTMLDivElement>) {
@@ -118,34 +125,37 @@ function ResourceRow({
     )
     // Capturing now would swallow the click that opens the booking's popover.
     if (!onBooking) event.currentTarget.setPointerCapture(event.pointerId)
-    const hour = hourFromEvent(event)
-    setDrag({ anchor: hour, current: hour, onBooking })
+    const slot = slotFromEvent(event)
+    setDrag({ anchor: slot, current: slot, onBooking })
   }
 
   function onPointerMove(event: PointerEvent<HTMLDivElement>) {
     if (!drag) return
-    const hour = hourFromEvent(event)
-    if (hour === drag.current) return
+    const slot = slotFromEvent(event)
+    if (slot === drag.current) return
     if (
       drag.onBooking &&
       !event.currentTarget.hasPointerCapture(event.pointerId)
     ) {
       event.currentTarget.setPointerCapture(event.pointerId)
     }
-    setDrag({ ...drag, current: hour })
+    setDrag({ ...drag, current: slot })
   }
 
   function onPointerUp() {
     if (!drag) return
     const clickedBooking = drag.onBooking && drag.anchor === drag.current
     if (!clickedBooking)
-      onSelect({ resourceId, ...dragSpan(drag.anchor, drag.current) })
+      onSelect({
+        resourceId,
+        ...dragSpan(drag.anchor, drag.current, STEP_MINUTES),
+      })
     setDrag(null)
   }
 
   const shown: Span | null =
     drag && !(drag.onBooking && drag.anchor === drag.current)
-      ? dragSpan(drag.anchor, drag.current)
+      ? dragSpan(drag.anchor, drag.current, STEP_MINUTES)
       : selection.resourceId === resourceId
         ? selection
         : null
@@ -206,9 +216,8 @@ function ResourceRow({
             className="pointer-events-none absolute inset-y-1 rounded-md border-2 border-period bg-period/10 transition-[left,width] duration-150 ease-(--ease-out)"
             style={{ left: `${selected.left}%`, width: `${selected.width}%` }}
           >
-            <span className="absolute -top-px left-1 rounded-b-sm bg-period px-1 text-[10px] leading-4 font-medium text-period-foreground tabular-nums">
-              {formatTime(shown.start).slice(0, 2)}–
-              {formatTime(shown.end).slice(0, 2)}h
+            <span className="absolute -top-px left-1 rounded-b-sm bg-period px-1 text-[10px] leading-4 font-medium whitespace-nowrap text-period-foreground tabular-nums">
+              {formatTime(shown.start)}–{formatTime(shown.end)}
             </span>
           </div>
         )}

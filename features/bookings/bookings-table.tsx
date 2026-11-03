@@ -43,9 +43,9 @@ import {
   formatDateTime,
   formatDuration,
   formatRaw,
-  hourToDate,
+  minuteToDate,
   toDayParam,
-} from "@/lib/hours"
+} from "@/lib/minutes"
 import { CancelBookingDialog } from "./cancel-booking-dialog"
 import { FacetedFilter } from "./faceted-filter"
 import { StatusBadge } from "./status-badge"
@@ -267,7 +267,7 @@ function RowActions({
   onCancel: () => void
 }) {
   const query = new URLSearchParams({
-    day: toDayParam(hourToDate(booking.start)),
+    day: toDayParam(minuteToDate(booking.start)),
     resource: booking.resourceId,
   })
   return (

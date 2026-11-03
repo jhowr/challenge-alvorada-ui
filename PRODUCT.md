@@ -20,17 +20,17 @@ A thin operational panel over the booking API: check availability of a resource 
 
 ## Positioning
 
-The UI makes the API's guarantees visible instead of hiding them: every refusal shows the API's own error code and the conflicting bookings, and bookings are drawn on an hour timeline so the half-open `[start, end)` boundary (a meeting ending at 11:00 frees 11:00) is something you see, not something you are told.
+The UI makes the API's guarantees visible instead of hiding them: every refusal shows the API's own error code and the conflicting bookings, and bookings are drawn on a day timeline so the half-open `[start, end)` boundary (a meeting ending at 11:00 frees 11:00) is something you see, not something you are told.
 
 ## Operating Context
 
-- Runs locally next to the API (`pnpm dev`), in-memory driver by default or Postgres with `DB_DRIVER=postgres`.
+- Runs locally next to the API (`pnpm dev`), which needs its Postgres (`pnpm db:up`).
 - Single demo login (credentials from env) gating the panel; authentication is a UI concern only, the API stays unauthenticated as documented. Deliberate: auth is outside the challenge scope and adding it to the API would touch the tested backend (see `docs/DECISIONS.md` §3).
-- Resources are a fixed seeded list (no create/edit).
+- Resources are a fixed list inserted by a migration (no create/edit).
 
 ## Capabilities and Constraints
 
-- Time is a 32-bit integer the API treats as unitless. The panel reads each integer as one whole hour since 1970-01-01T00:00Z, so a single integer carries day and hour (2026-11-02 09:00 UTC = 498225). Granularity is one hour; the UI never fractions it. Displayed in the viewer's local time zone, with the raw integer kept visible next to it so it can be compared with the API. Pinned by tests in the API repository (see its `docs/DECISIONS.md` §3).
+- Time is a 32-bit integer the API treats as unitless. The panel reads each integer as one whole minute since 1970-01-01T00:00Z, so a single integer carries day, hour and minute (2026-11-02 12:00 UTC = 29893680). The grid and pickers move in 15-minute steps; the API accepts any minute. Displayed in the viewer's local time zone, with the raw integer kept visible next to it so it can be compared with the API. Pinned by tests in the API repository (see its `docs/DECISIONS.md` §3).
 - API error codes are the vocabulary: `validation_error`, `resource_not_found`, `id_already_used`, `conflict`, `booking_not_found`, `already_cancelled`. The UI explains them in Portuguese but keeps the code visible.
 - Booking ids are chosen by the caller and never reused, even after cancellation.
 - `GET /bookings` has no pagination.

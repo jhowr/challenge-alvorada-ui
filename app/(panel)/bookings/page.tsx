@@ -30,7 +30,7 @@ export default async function BookingsPage({
     <Page>
       <PageHeader
         title="Reservas"
-        description="Todas as reservas, na ordem da API: id crescente pela ordem dos bytes, igual em memória e no Postgres."
+        description="Todas as reservas, na ordem da API: id crescente pela ordem dos bytes."
       />
       <BookingsTable
         bookings={bookings.data}

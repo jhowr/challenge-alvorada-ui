@@ -43,7 +43,7 @@ export default async function PanelLayout({
           <SidebarTrigger className="-ml-1" />
           <Separator orientation="vertical" className="h-5" />
           <span className="truncate text-sm text-muted-foreground">
-            Reservas sem conflito · horas inteiras no fuso local
+            Reservas sem conflito · de 15 em 15 minutos, no fuso local
           </span>
         </header>
         {children}

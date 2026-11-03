@@ -21,7 +21,7 @@ OWN-WORLD: Light paper-neutral ground, a deep ink-blue sidebar in both themes, i
 
 STORY: The evaluator sees today's grid, drags or types a range, reads "Livre" or "Ocupado" with the conflicting bookings named, books it, watches the block appear, cancels it, and tries the same id again to see `id_already_used`.
 
-FIRST VIEWPORT: Dark sidebar (Agenda, Reservas, resource list with active counts, user menu, API driver status). Header: "Agenda", day navigator, "Nova reserva". Main left: the resource × 24h grid filling the width; right: a 360px "Verificar e reservar" panel with the live availability result above the form.
+FIRST VIEWPORT: Dark sidebar (Agenda, Reservas, resource list with active counts, user menu, API status). Header: "Agenda", day navigator, "Nova reserva". Main left: the resource × 24h grid filling the width; right: a 360px "Verificar e reservar" panel with the live availability result above the form.
 
 FORM: canon (standing exit taken by the user: "talvez falta um shadcnui"), craft bar = ninebrains panel. seed: 1ae936e9 roll declined in favour of canon. Signature interaction: drag across free hours on a resource row to select a period, with the violet overlay following and conflicting blocks turning amber live; motion 150–200ms ease-out, none on keyboard actions.
 

@@ -17,7 +17,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { dayRange, hourToDate, startOfLocalDay } from "@/lib/hours"
+import {
+  dayRange,
+  formatTime,
+  minuteToDate,
+  startOfLocalDay,
+  STEP_MINUTES,
+} from "@/lib/minutes"
 
 const dayLabel = new Intl.DateTimeFormat("pt-BR", {
   day: "2-digit",
@@ -25,10 +31,11 @@ const dayLabel = new Intl.DateTimeFormat("pt-BR", {
 })
 
 /**
- * Picks one whole hour as a local day plus an hour of that day. The value is
- * the API's integer; the caller shows it next to the field.
+ * Picks a minute as a local day plus a time of that day, offered every
+ * `STEP_MINUTES`. The value is the API's integer; the caller shows it next to
+ * the field.
  */
-export function HourPicker({
+export function TimePicker({
   id,
   value,
   onChange,
@@ -36,16 +43,25 @@ export function HourPicker({
 }: {
   id: string
   value: number
-  onChange: (hour: number) => void
+  onChange: (minute: number) => void
   invalid?: boolean
 }) {
   const [open, setOpen] = useState(false)
-  const date = hourToDate(value)
+  const date = minuteToDate(value)
   const day = dayRange(date)
   const offset = value - day.start
-  const items = Array.from({ length: day.end - day.start }, (_, i) => ({
-    value: String(i),
-    label: `${String(hourToDate(day.start + i).getHours()).padStart(2, "0")}:00`,
+  const offsets = Array.from(
+    { length: Math.ceil((day.end - day.start) / STEP_MINUTES) },
+    (_, i) => i * STEP_MINUTES
+  )
+  // A booking made through the API directly may sit between the steps.
+  if (!offsets.includes(offset)) {
+    offsets.push(offset)
+    offsets.sort((a, b) => a - b)
+  }
+  const items = offsets.map((minutes) => ({
+    value: String(minutes),
+    label: formatTime(day.start + minutes),
   }))
 
   return (
@@ -75,8 +91,10 @@ export function HourPicker({
             onSelect={(next) => {
               if (!next) return
               const nextDay = dayRange(next)
-              // Keep the hour of day; a shorter (DST) day clamps to its last hour.
-              onChange(Math.min(nextDay.start + offset, nextDay.end - 1))
+              // Keep the time of day; a shorter (DST) day clamps to its last step.
+              onChange(
+                Math.min(nextDay.start + offset, nextDay.end - STEP_MINUTES)
+              )
               setOpen(false)
             }}
           />
@@ -91,7 +109,7 @@ export function HourPicker({
       >
         <SelectTrigger
           className="w-24"
-          aria-label="Hora"
+          aria-label="Horário"
           aria-invalid={invalid || undefined}
         >
           <SelectValue />

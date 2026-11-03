@@ -29,9 +29,9 @@ import { Page, PageHeader } from "@/features/shell/page"
 import {
   addLocalDays,
   formatLongDay,
-  hourToDate,
+  minuteToDate,
   toDayParam,
-} from "@/lib/hours"
+} from "@/lib/minutes"
 import { cn } from "@/lib/utils"
 import { BookingPanel } from "./booking-panel"
 import { DayGrid, type Selection } from "./day-grid"
@@ -52,8 +52,8 @@ export function Agenda(props: AgendaProps) {
   const router = useRouter()
   const [selection, setSelection] = useState<Selection>(() => ({
     resourceId: focusedResource ?? resources[0] ?? "",
-    start: day.start + 9,
-    end: day.start + 11,
+    start: day.start + 9 * 60,
+    end: day.start + 11 * 60,
   }))
   const [showCancelled, setShowCancelled] = useState(false)
   const [cancelling, setCancelling] = useState<Booking | null>(null)
@@ -71,7 +71,7 @@ export function Agenda(props: AgendaProps) {
     : bookings.filter((b) => b.status === "active")
   const cancelledCount =
     bookings.length - bookings.filter((b) => b.status === "active").length
-  const date = hourToDate(day.start)
+  const date = minuteToDate(day.start)
 
   const goTo = (target: Date) => {
     const query = new URLSearchParams({ day: toDayParam(target) })
